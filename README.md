@@ -2,10 +2,18 @@
 
 * Repositório destinado ao Estudo de Caso: Versionador de Arquivos.
 
----
 * Esse trabalho terá base no funcionamento do Git.
 
 * Boa parte do que foi aplicado aqui foi fruto dos ensinamentos do Professor Nilson e de um canal no youtube chamado ***Portfolio Courses*** ([Link para o canal](https://www.youtube.com/@PortfolioCourses)), que instruiu a criação de diretorios e tratamentos de erros.
+
+***DETALHE IMPORTANTE***
+> Esse projeto só rodará seguindo essas instruções e tendo um SO com base em Unix, pois foi utilizado o comando `make` para compilar o projeto e gerar o executavel. Poderá ser executado no Windows (ou outro SO), porém aqui não estará ensinando como instalar os pacotes necessários para rodar arquivos Makefile no Windows (ou outro SO).
+---
+## * ***Para rodar o projeto***
+
+* Para inicializar o projeto basta executar o comando `make` no terminal, que ele irá compilar o projeto e gerar o arquivo `versionador` que será o executavel do projeto.
+
+* Para rodar o projeto com uma pasta de exemplo, nesse repositorio terá a pasta `mocks`, onde nela você terá alguns arquivos de exemplo para poder executar as funções do versionador. Então, para uma boa execução do programa, você terá de rodar o `./versionador` na pasta mocks, caso contrario ele criara a pasta `.versiondor` na pasta raiz do projeto.
 
 ---
 * ***Database***
@@ -15,8 +23,7 @@
 * Foi utilizada as seguintes bibliotecas:
   * `stdio.h` [Link para a documentação!]()
   * `stdlib.h` [Link para a documentação!]()
-  * `string.h` para tratativas de *strings*. [Link para a documentação!](), [Error Codes](https://www.gnu.org/software/libc/manual/html_node/Error-Codes.html)
-  * `errno.h` para o tratamento de erros. [Link para a documentação!]()
+  * `string.h` para tratativas de *strings*. [Link para a documentação!]()
   * `sys/stat.h` para a criação de pastas. (*.versionador*, *snapshots*, *logs*). [Link para a documentação!](https://pubs.opengroup.org/onlinepubs/7908799/xsh/sysstat.h.html)
 
 ---
@@ -33,7 +40,10 @@ Nessa versão o Versionador terá 4 funções basicas sendo elas:
 * `versionador.exe log --conteudo`: Ao executar esse comando,
 
 
-## Funções
+## TO-DO
+- [] Refatorar o caminho da pasta `.versionador` nas funções.
+- [] Adicionar a funcionalidade `./versionador aciciona .` para adicionar todos os arquivos da pasta.
 
-***`errno.h`***:
-> * `perror("Error")`: detalhará o erro que está acontecendo na função.
+## Funcs
+- Adiciona: coloca os arquivos na pasta `.versionador/snapshots_temp` que são os arquivos que ainda não foram registrados.
+Copia os arquivos para a snapshot_temp e vai adicionando em um txt que será o snapshot.

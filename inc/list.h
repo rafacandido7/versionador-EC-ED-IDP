@@ -3,8 +3,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "../inc/list.h"
+#include "../inc/versionador.h"
 #include "../inc/helpers.h"
+#include "../inc/list.h"
+#include "../inc/fileHandler.h"
 
 typedef struct _listFileNode ListFileNode;
 typedef struct _listFile ListFile;
@@ -14,7 +16,7 @@ int push(ListFile* list, FILE* file); // Insere e retorna na última posição
 int unshift(ListFile* list, FILE* file); // Insere e retorna o elemento na primeira posição
 FILE* pop(ListFile* list); // Remove e retorna o último elemento
 FILE* shift(ListFile* list); // Remove e retorna o elemento na primeira posição
-void getLastElement(ListFileNode* node); // Procura pelo último elemento da lista
+ListFileNode* getLastElement(ListFileNode* node); // Procura pelo último elemento da lista
 int length(ListFile* list); // Retorna o tamanho da lista
 int isEmpty(ListFile* list);
 void freeList(ListFile* list); // Desaloca a lista

@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../inc/list.h"
+#include "../inc/versionador.h"
 #include "../inc/helpers.h"
+#include "../inc/list.h"
 
 struct _listFileNode {
   FILE *info;
@@ -118,10 +119,11 @@ FILE* shift(ListFile* list) {
   return removed;
 }
 
-void getLastElement(ListFileNode* node) {
+ListFileNode* getLastElement(ListFileNode* node) {
   while (node->next != NULL) {
     node = node->next;
   }
+  return node;
 }
 
 int length(ListFile* list) {

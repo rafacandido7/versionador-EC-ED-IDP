@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <dirent.h>
+#include "../inc/versionador.h"
 #include "../inc/helpers.h"
+#include "../inc/list.h"
+#include "../inc/fileHandler.h"
 
 extern int errno;
 
@@ -19,32 +21,32 @@ extern int errno;
 #define RESET "\x1B[0m"
 
 void print(char* text, char* color) {
-  if (strcmp(color, "success") == 0) {
+  if (strIsEqual(color, "success")) {
     printf("%s%s%s\n", GRN, text, RESET);
-  } else if (strcmp(color, "error") == 0) {
+  } else if (strIsEqual(color, "error")) {
     printf("%s%s%s\n", RED, text, RESET);
-  } else if (strcmp(color, "red") == 0) {
+  } else if (strIsEqual(color, "red")) {
     printf("%s%s%s\n", RED, text, RESET);
-  } else if (strcmp(color, "green") == 0) {
+  } else if (strIsEqual(color, "green")) {
     printf("%s%s%s\n", GRN, text, RESET);
-  } else if (strcmp(color, "yellow") == 0) {
+  } else if (strIsEqual(color, "yellow")) {
     printf("%s%s%s\n", YEL, text, RESET);
-  } else if (strcmp(color, "blue") == 0) {
+  } else if (strIsEqual(color, "blue")) {
     printf("%s%s%s\n", BLU, text, RESET);
-  } else if (strcmp(color, "magenta") == 0) {
+  } else if (strIsEqual(color, "magenta")) {
     printf("%s%s%s\n", MAG, text, RESET);
-  } else if (strcmp(color, "cyan") == 0) {
+  } else if (strIsEqual(color, "cyan")) {
     printf("%s%s%s\n", CYN, text, RESET);
-  } else if (strcmp(color, "white") == 0) {
+  } else if (strIsEqual(color, "white")) {
     printf("%s%s%s\n", WHT, text, RESET);
   } else {
     printf("%s\n", text);
   }
+  printf("\n");
   return;
 }
 
 // Verifies
-
 void verifyAllocation (void* pointer) {
   if (pointer == NULL) {
     print("Erro de alocação de memória!", RED);
@@ -94,8 +96,16 @@ bool verifyDirectory(const char *folderPath) {
   }
 }
 
-// Creates
+bool strIsEqual(const char *str1, const char *str2) {
+  bool res = strcmp(str1, str2) == 0 ? true : false;
+  return res;
+}
 
+bool verifyVersionadorFolder(void) {
+  bool res = verifyDirectory(".versionador") ? true : false;
+  return res;
+}
+// Creates
 void createFolder (char* folderName, char* newFolderName) {
   char completePath[100];
   snprintf(completePath, sizeof(completePath), "%s/%s", folderName, newFolderName);
@@ -137,11 +147,11 @@ void createRepo(const char* folderName) {
 
     // Create the Versionador Folders
     createFolder(folderName, "snapshots");
+    createFolder(folderName, "snapshots_temp");
     createFolder(folderName, "temp");
     createLogFolder(folderName);
 }
 // Generates
-
 char generateRandomChar(void) {
   const char charr[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$&*_+?";
 
@@ -165,10 +175,25 @@ char* generateHash(int length) {
 }
 
 // Gests
-
 char* getCompletePath(const char* beginPath, const char* endPath) {
   char completePath[100];
   snprintf(completePath, sizeof(completePath), "%s/%s", beginPath, endPath);
 
   return completePath;
 }
+
+// Versionador helpers
+void addFiles(int argc, const char* argv[]) {
+  copyFilesToSnapshotTemp(argc, argv);
+};
+
+// Test Functions
+void printArgv(int argc, const char* argv[]) {
+  print("Argumentos passados: ", "blue");
+  print("______________________________", "blue");
+  for (int i = 0; i < argc; i++) {
+    printf("%d: %s\n", i, argv[i]);
+  }
+  print("______________________________", "blue");
+  return;
+};
