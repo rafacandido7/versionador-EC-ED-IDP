@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool test = true;
+bool test = false;
 
 void start(int argc, const char *argv[]) {
   print("versionador.exe v1.0.0", "blue");
@@ -76,8 +76,14 @@ void registrar(const char *text) {
   }
 };
 
-void log(void) {
-
+void log(int argc, const char *argv[]) {
+  if (argc < 3) {
+    showLog();
+    return;
+  } else if (argv[2] && strIsEqual(argv[2], "--conteudo")) {
+    showLogsContent();
+    return;
+  }
 };
 
 void mostrar(void);
@@ -99,15 +105,10 @@ void options(int argc, const char *argv[]) {
       registrar(argv[2]);
       return;
     }
-    if (strIsEqual(argv[1], "log")) {
-      if (argc < 2) {
-        showLog();
-        return;
-      } else if (argv[2] && strIsEqual(argv[2], "--conteudo")) {
-        showLogsContent();
-        return;
-      }
 
+    if (strIsEqual(argv[1], "log")) {
+      log(argc, argv);
+      return;
     }
     // if (strIsEqual(argv[1], "mostrar")) {
     //     if (argv[2] == NULL) {
