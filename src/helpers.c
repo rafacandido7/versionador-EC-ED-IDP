@@ -342,8 +342,11 @@ void showLogsContent(void) {
     print("Snapshots", "magenta");
     print("--------------------------------", "magenta");
     for (int i = 0; i < foldersQuantity; i++) {
-      print("Conteúdo da snapshot:", "green");
-      print(foldersNames[i], "green");
+      char title[256];
+      strcpy(title, "Conteúdo da snapshot: ");
+      strcat(title, foldersNames[i]);
+      print(title, "green");
+
       char path[] = ".versionador/snapshots/";
       char folderPath[256];
 
@@ -361,6 +364,24 @@ void showLogsContent(void) {
 
 }
 
+void showSnapshotContent(const char* snapshotName) {
+  char path[] = ".versionador/snapshots/";
+  char folderPath[256];
+
+  strcpy(folderPath, path);
+  strcat(folderPath, snapshotName);
+
+  char title[256];
+  strcpy(title, "Conteúdo da snapshot: ");
+  strcat(title, snapshotName);
+
+  print(title, "green");
+  print("--------------------------------", "green");
+
+  printTxtFilesContent(folderPath);
+
+  print("--------------------------------", "green");
+}
 // Frees
 void freeFolders(char** folders, int numFolders) {
   for (int i = 0; i < numFolders; i++) {

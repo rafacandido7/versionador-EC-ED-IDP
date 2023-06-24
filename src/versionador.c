@@ -86,7 +86,17 @@ void log(int argc, const char *argv[]) {
   }
 };
 
-void mostrar(void);
+void mostrar(const char *argv[]) {
+  const char *commit = argv[2];
+  if (commit == NULL) {
+    print("É necessário informar o commit!", "error");
+    return;
+  }
+
+  showSnapshotContent(commit);
+  return;
+};
+
 void mudar(void);
 
 void options(int argc, const char *argv[]) {
@@ -110,12 +120,11 @@ void options(int argc, const char *argv[]) {
       log(argc, argv);
       return;
     }
-    // if (strIsEqual(argv[1], "mostrar")) {
-    //     if (argv[2] == NULL) {
-    //         // retornar erro ao usar a função
-    //     }
-    //     const char* commit = argv[2];
-    // }
+
+    if (strIsEqual(argv[1], "mostrar")) {
+      mostrar(argv);
+      return;
+    }
     // if (strIsEqual(argv[1], "mudar")) {
     //     // verificar se não já está na atual
     //     if (argv[2] && strIsEqual(argv[2], "--atual")) {

@@ -11,8 +11,9 @@ void start(int argc, const char* argv[]);
 void options(int argc, const char* argv[]);
 void inciar(void);
 void adiciona(int argc, const char* argv[]);
+void registrar(const char *text);
 void log(int argc, const char *argv[]);
-void mostrar(void);
+void mostrar(const char *argv[]);
 void mudar(void);
 
 #endif

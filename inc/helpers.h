@@ -44,6 +44,7 @@ bool clearFolder(const char* folderPath); // Limpa uma pasta
 // Show
 void showLog(void); // Mostra o log do versionador
 void showLogsContent(void); // Mostra o log do versionador
+void showSnapshotContent(const char* snapshotName); // Mostra o conteúdo de um snapshot
 
 // Frees
 void freeFolders(char** folders, int numFolders); // Libera a memória de um vetor de strings
