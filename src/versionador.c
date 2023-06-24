@@ -1,20 +1,24 @@
+#include "../inc/versionador.h"
+#include "../inc/fileHandler.h"
+#include "../inc/helpers.h"
+#include "../inc/list.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include "../inc/versionador.h"
-#include "../inc/helpers.h"
-#include "../inc/list.h"
-#include "../inc/fileHandler.h"
 
-void start(int argc, const char* argv[]) {
+bool test = true;
+
+void start(int argc, const char *argv[]) {
   print("versionador.exe v1.0.0", "blue");
-  // printArgv(argc, argv);
+  if (test) {
+    printArgv(argc, argv);
+  }
   options(argc, argv);
 }
 
 void inciar() {
-  const char* folderName = ".versionador";
+  const char *folderName = ".versionador";
   if (verifyDirectory(folderName)) {
     print("O versionador já foi inicializado!", "error");
     print("Para mais informções digite 'versionador.exe status'!\n", "blue");
@@ -34,61 +38,77 @@ void inciar() {
   }
 }
 
-void adiciona(int argc, const char* argv[]) {
+void adiciona(int argc, const char *argv[]) {
   if (argc < 3) {
     print("É necessário informar o(s) nome(s) do arquivo(s)!", "error");
     return;
   }
 
   if (argc >= 3) {
-    addFiles(argc, argv);
+    bool process = addFiles(argc, argv);
+
+    if (!process) {
+      print("Erro ao adicionar o(s) arquivo(s)!", "error");
+      return;
+    }
     print("Arquivo(s) adicionado(s) com sucesso!", "success");
-    // print("Para registrar as mudanças, digite './versionador registra <Texto>'!\n", "magenta");
+    print("Para registrar as mudanças, digite './versionador registra "
+          "<Texto>'!",
+          "magenta");
     return;
   }
 }
 
-void registrar(const char* text) {
-  if (!verifyDirectory(".versionador/snapshots_temp")) {
-    print("O versionador não foi inicializado!", "error");
-    print("Para adicionar os arquivos, primeiro deve-se inicializar o versionador com 'versionador iniciar'!\n", "blue");
+void registrar(const char *text) {
+  if (verifyDirectory(".versionador/snapshots_temp")) {
+    if (text) {
+      // Create the snapshot
+      createSnapshot(text);
+      print("Arquivos registrados com sucesso!", "success");
+      return;
+    } else {
+      print("É necessário informar um texto para o snapshot!", "error");
+      return;
+    }
+  } else {
+    print("Não há arquivos para serem registrados!", "error");
     return;
   }
 };
 
-void log(void);
+void log(void) {
+
+};
+
 void mostrar(void);
 void mudar(void);
 
-void options(int argc, const char* argv[]) {
-    if (strIsEqual(argv[1], "iniciar")) {
-      inciar();
+void options(int argc, const char *argv[]) {
+  if (strIsEqual(argv[1], "iniciar")) {
+    inciar();
+    return;
+  }
+
+  if (verifyVersionadorFolder()) {
+    if (strIsEqual(argv[1], "adiciona")) {
+      adiciona(argc, argv);
       return;
     }
 
-    if (verifyVersionadorFolder()) {
-      if (strIsEqual(argv[1], "adiciona")) {
-      adiciona(argc, argv);
+    if (strIsEqual(argv[1], "registra")) {
+      registrar(argv[2]);
       return;
+    }
+    if (strIsEqual(argv[1], "log")) {
+      if (argc < 2) {
+        showLog();
+        return;
+      } else if (argv[2] && strIsEqual(argv[2], "--conteudo")) {
+        showLogsContent();
+        return;
       }
 
-      // if (strIsEqual(argv[1], "registra")) {
-      //   registrar(argv[2]);
-      //     // verificar fila de arquivos, se tiver, se não exibir alerta
-      //     if (verifyDirectory(".versionador/snapshots_temp")) {
-      //         if (argv[2]) {
-
-      //         }
-      //     } else {
-      //         print("Não há arquivos para serem registrados!", "error");
-      //     }
-      // }
-    // if (strIsEqual(argv[1], "log")) {
-    //     //printa os snapshots(commits) já feitos
-    //     if (argv[2] && strIsEqual(argv[2], "--conteudo")) {
-    //         // printar log
-    //     }
-    // }
+    }
     // if (strIsEqual(argv[1], "mostrar")) {
     //     if (argv[2] == NULL) {
     //         // retornar erro ao usar a função
@@ -103,11 +123,10 @@ void options(int argc, const char* argv[]) {
     // if (strIsEqual(argv[1], "--ajuda")) {
     //     // printar as funções já existentes e disponíveis
     // }
-      print("Comando não encontrado!", "error");
-      return;
-    }
-
-
-    print("Para executar qualquer função do versionador, primeiro deve-se inicializa-lo com './versionador iniciar'!", "error");
+    print("Comando não encontrado!", "error");
     return;
+  }
+
+  print("Para executar qualquer função do versionador, primeiro deve-se inicializa-lo com './versionador iniciar'!", "error");
+  return;
 }

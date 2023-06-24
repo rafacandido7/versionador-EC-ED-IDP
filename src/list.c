@@ -1,23 +1,30 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../inc/versionador.h"
+#include <stdbool.h>
 #include "../inc/helpers.h"
 #include "../inc/list.h"
 
-struct _listFileNode {
-  FILE *info;
-  ListFileNode *next;
+struct _archive {
+  const char* fileName;
+  FILE* file;
 };
 
-struct _listFile {
-  ListFileNode *first;
+struct _fileListNode {
+  Archive *info;
+  FileListNode *next;
+};
+
+struct _fileList {
+  FileListNode *first;
   int length;
 };
 
-ListFile* createList(void) {
-  ListFile* list = (ListFile*)malloc(sizeof(ListFile));
+FileList* createList(void) {
+  FileList* list = (FileList*)malloc(sizeof(FileList));
 
-  verifyAllocation(list);
+  if (list == NULL) {
+    return NULL;
+  }
 
   list->first = NULL;
   list->length = 0;
@@ -25,18 +32,31 @@ ListFile* createList(void) {
   return list;
 }
 
-int push(ListFile* list, FILE* file) {
-  ListFileNode* node = (ListFileNode*)malloc(sizeof(ListFileNode));
+int push(FileList* list, FILE* file, const char* fileName) {
+  FileListNode* node = (FileListNode*)malloc(sizeof(FileListNode));
+  printf("%s", fileName);
 
-  verifyAllocation(node);
+  if (node == NULL) {
+    print("Erro de alocação de memória!", 'error');
+    return -1;
+  }
 
-  node->info = file;
+  Archive* archive = (Archive*)malloc(sizeof(Archive));
+  if (archive == NULL) {
+    print("Erro de alocação de memória!", 'error');
+    return -1;
+  }
+
+  archive->fileName = fileName;
+  archive->file = file;
+
+  node->info = archive;
   node->next = NULL;
 
   if (isEmpty(list)) {
     list->first = node;
   } else {
-    ListFileNode* aux = list->first;
+    FileListNode* aux = list->first;
 
     while (aux->next != NULL) {
       aux = aux->next;
@@ -49,12 +69,18 @@ int push(ListFile* list, FILE* file) {
   return length(list);
 }
 
-int unshift(ListFile* list, FILE* file) {
-  ListFileNode* node = (ListFileNode*)malloc(sizeof(ListFileNode));
+int unshift(FileList* list, FILE* file, const char* fileName) {
+  FileListNode* node = (FileListNode*)malloc(sizeof(FileListNode));
 
-  verifyAllocation(node);
+  if (node == NULL) {
+    print("Erro de alocação de memória!", 'error');
+  }
 
-  node->info = file;
+  Archive* archive = (Archive*)malloc(sizeof(Archive));
+  archive->fileName = fileName;
+  archive->file = file;
+
+  node->info = archive;
   node->next = list->first;
 
   list->first = node;
@@ -64,13 +90,13 @@ int unshift(ListFile* list, FILE* file) {
   return length(list);
 }
 
-FILE* pop(ListFile* list) {
+Archive* pop(FileList* list) {
   if(isEmpty(list)) {
     return NULL;
   }
 
-  ListFileNode* aux = list->first;
-  ListFileNode* prev = NULL;
+  FileListNode* aux = list->first;
+  FileListNode* prev = NULL;
 
   // Go to the last element
   while (aux->next != NULL) {
@@ -86,7 +112,7 @@ FILE* pop(ListFile* list) {
   }
 
 
-  FILE* removed = aux->info;
+  FILE* removed = aux->info->file;
   free(aux);
 
   // Verify if prev node is not null, if its, free it
@@ -100,17 +126,17 @@ FILE* pop(ListFile* list) {
   return removed;
 }
 
-FILE* shift(ListFile* list) {
+Archive* shift(FileList* list) {
   if (isEmpty(list)) {
     return NULL;
   }
 
   // Create aux node to store the first node
-  ListFileNode* aux = list->first;
+  FileListNode* aux = list->first;
   // Set the first node to the next node
   list->first = aux->next;
 
-  FILE* removed = aux->info;
+  FILE* removed = aux->info->file;
   free(aux);
 
   // Decrement list length
@@ -119,28 +145,76 @@ FILE* shift(ListFile* list) {
   return removed;
 }
 
-ListFileNode* getLastElement(ListFileNode* node) {
+FileListNode* getLastElement(FileListNode* node) {
   while (node->next != NULL) {
     node = node->next;
   }
   return node;
 }
 
-int length(ListFile* list) {
+int length(FileList* list) {
   return list->length;
 }
 
-int isEmpty(ListFile* list) {
-  return (list->first == NULL);
+bool isEmpty(FileList* list) {
+  return list->first == NULL ? true : false;
 }
 
-void freeList(ListFile* list) {
+void freeList(FileList* list) {
   while (!isEmpty(list)) {
-    FILE* file = pop(list);
+    FILE* file = pop(list)->file;
     if (file != NULL) {
       fclose(file);
     }
   }
 
   free(list);
+}
+
+bool addFilesIteration(FileList* list, const char* path) {
+  int fileLength = length(list);
+  FileListNode* node = list->first;
+
+  for (int i = 0; i < fileLength; i++) {
+    char filePath[100];
+    const char* fileName = node->info->fileName;
+
+    // Creates the file path
+    snprintf(filePath, sizeof(filePath), "%s/%s", path, fileName);
+    FILE* file = fopen(filePath, "w");
+
+    if (!verifyFile(filePath)) {
+      print("Erro ao abrir o arquivo: ", "error");
+      print(filePath, "error");
+      return false;
+    }
+
+    char buffer;
+    FILE* fileToCopy = node->info->file;
+
+    // Copy the file
+    while ((buffer = fgetc(fileToCopy)) != EOF) {
+      fputc(buffer, file);
+    }
+
+    fclose(file);
+    node = node->next;
+  }
+
+  printFilesNames(list);
+
+  if (list->length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void printFilesNames(FileList* list) {
+  FileListNode* node = list->first;
+
+  while (node != NULL) {
+    print(node->info->fileName, 'info');
+    node = node->next;
+  }
 }

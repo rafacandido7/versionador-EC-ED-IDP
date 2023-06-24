@@ -12,7 +12,7 @@ EXE = versionador
 
 .PHONY: all clean
 
-all: clean $(EXE)
+all: clean $(EXE) run
 
 $(EXE): $(OBJ)
 	$(CC) $(LDFLAGS) $(OBJDIR)/*.o -o $@
@@ -26,4 +26,6 @@ clean:
 	-rm -rf $(REPDIR)
 
 run:
-	./$(EXE)
+	./$(EXE) iniciar
+	# ./$(EXE) adiciona archive1.txt
+	# ./$(EXE) registra commit

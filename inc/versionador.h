@@ -1,14 +1,11 @@
-#ifndef VERSIONADOR_H_
-#define VERSIONADOR_H_
+#ifndef VERSIONADOR_H
+#define VERSIONADOR_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../inc/versionador.h"
-#include "../inc/helpers.h"
-#include "../inc/list.h"
-#include "../inc/fileHandler.h"
+#include "helpers.h"
 
 void start(int argc, const char* argv[]);
 void options(int argc, const char* argv[]);

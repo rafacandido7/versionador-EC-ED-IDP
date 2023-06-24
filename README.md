@@ -42,7 +42,10 @@ Nessa versão o Versionador terá 4 funções basicas sendo elas:
 
 ## TO-DO
 - [] Refatorar o caminho da pasta `.versionador` nas funções.
-- [] Adicionar a funcionalidade `./versionador aciciona .` para adicionar todos os arquivos da pasta.
+- [] Adicionar a funcionalidade `./versionador adiciona .` para adicionar todos os arquivos da pasta.
+- [] A mensagem do `./versionador adiciona` está dando sucesso independente da operação, adicionar uma funcionalidade para corrigir isso.
+- Verificar mensagens quando adiciona o arquivo, (arquivos que n existem bla bla, verificar tipagens booleans, etc...)
+- Quando for pegar os conteudos pelo ID para poder ser o identificador do commit.
 
 ## Funcs
 - Adiciona: coloca os arquivos na pasta `.versionador/snapshots_temp` que são os arquivos que ainda não foram registrados.

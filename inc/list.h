@@ -3,22 +3,27 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "../inc/versionador.h"
-#include "../inc/helpers.h"
-#include "../inc/list.h"
-#include "../inc/fileHandler.h"
+#include <sys/stat.h>
+#include <stdbool.h>
 
-typedef struct _listFileNode ListFileNode;
-typedef struct _listFile ListFile;
+typedef struct _archive Archive;
 
-ListFile* createList(void);
-int push(ListFile* list, FILE* file); // Insere e retorna na última posição
-int unshift(ListFile* list, FILE* file); // Insere e retorna o elemento na primeira posição
-FILE* pop(ListFile* list); // Remove e retorna o último elemento
-FILE* shift(ListFile* list); // Remove e retorna o elemento na primeira posição
-ListFileNode* getLastElement(ListFileNode* node); // Procura pelo último elemento da lista
-int length(ListFile* list); // Retorna o tamanho da lista
-int isEmpty(ListFile* list);
-void freeList(ListFile* list); // Desaloca a lista
+typedef struct _fileListNode FileListNode;
 
-#endif /* LIST_FILE_H */
+typedef struct _fileList FileList;
+
+FileList* createList(void);
+int push(FileList* list, FILE* file, const char* fileName); // Insere e retorna o tamanho da lista
+int unshift(FileList* list, FILE* file, const char* fileName); // Insere e retorna o elemento na primeira posição
+Archive* pop(FileList* list); // Remove e retorna o último elemento
+Archive* shift(FileList* list); // Remove e retorna o elemento na primeira posição
+FileListNode* getLastElement(FileListNode* node); // Procura pelo último elemento da lista
+int length(FileList* list); // Retorna o tamanho da lista
+bool isEmpty(FileList* list); // Retorna se a lista está vazia
+void freeList(FileList* list); // Desaloca a lista
+
+// File Handling
+bool addFilesIteration(FileList* list, const char* path); // Itera sobre os arquivos de um diretório e os insere na lista
+void printFilesNames(FileList* list); // Imprime os nomes dos arquivos da lista
+
+#endif

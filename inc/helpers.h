@@ -1,5 +1,5 @@
-#ifndef HELPERS_H_
-#define HELPERS_H_
+#ifndef HELPERS_H
+#define HELPERS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,11 +8,6 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <dirent.h>
-#include "../inc/versionador.h"
-#include "../inc/helpers.h"
-#include "../inc/list.h"
-#include "../inc/fileHandler.h"
-
 
 void print(char* text, char* color);
 
@@ -24,6 +19,7 @@ void createTxtFile(const char* path, char* fileName, char* text); // Cria um arq
 void createFolder (char* folderName, char* newFolderName); // Cria uma pasta com o nome passado
 void createLogFolder(const char* folderPath); // Cria a pasta de Logs do Versionador
 void createRepo(const char* folderName); // Cria um repositório com o nome passado
+void createSnapshot(const char* text); // Cria um snapshot com o texto passado sobre os arquivos adicionados
 
 // Verifies
 void verifyAllocation (void* pointer); // Verifica se a alocação de memória foi bem sucedida
@@ -32,18 +28,27 @@ bool verifyDirectory(const char *folderPath); // verifica se uma pasta existe e 
 bool strIsEqual(const char *str1, const char *str2); // Verifica se duas strings são iguais e retorna um booleano
 bool verifyVersionadorFolder(void); // Verifica se a pasta .versionador existe
 
-// Gests
-char* getCompletePath(const char* beginPath, const char* endPath); // Retorna o caminho completo de um arquivo
+// Gets
+char* getFilesInFolder(const char* path); // Retorna os arquivos de uma pasta
+const char* getTxtContentFile(const char* path);
 
 // File Handle Functions
-void addFiles(int argc, const char* argv[]);
+bool addFiles(int argc, const char* argv[]);
 
 // Test functions
 void printArgv(int argc, const char* argv[]); // Printa os argumentos passados
 
+// Deletes
+bool clearFolder(const char* folderPath); // Limpa uma pasta
 
+// Show
+void showLog(void); // Mostra o log do versionador
+void showLogsContent(void); // Mostra o log do versionador
 
+// Frees
+void freeFolders(char** folders, int numFolders); // Libera a memória de um vetor de strings
 
-
+// Prints
+void printTxtFilesContent(const char* directoryPath); // Printa o conteúdo dos arquivos .txt de uma pasta
 
 #endif
