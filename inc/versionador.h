@@ -14,6 +14,6 @@ void adiciona(int argc, const char* argv[]);
 void registrar(const char *text);
 void log(int argc, const char *argv[]);
 void mostrar(const char *argv[]);
-void mudar(void);
+void mudar(const char* argv[]);
 
 #endif

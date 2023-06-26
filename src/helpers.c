@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <time.h>
 
 extern int errno;
 
@@ -67,8 +68,7 @@ bool verifyFile(const char *fileName) {
 
 bool verifyDirectory(const char *folderPath) {
   DIR *folder;
-  struct dirent *entry;
-  int folderFiles = 0;
+  folder = opendir(folderPath);
 
   // Open the folder
   folder = opendir(folderPath);
@@ -76,24 +76,12 @@ bool verifyDirectory(const char *folderPath) {
   // Check if folder exists
   if (folder == NULL) {
     return false;
-  }
-
-  // Count the files in the folder
-  while ((entry = readdir(folder)) != NULL) {
-    if (entry->d_type == DT_REG) {
-      folderFiles++;
-    }
+  } else {
+    return true;
   }
 
   // Close the folder
   closedir(folder);
-
-  // If there are no files in the folder, return false, else return true
-  if (folderFiles == 0) {
-    return false;
-  } else {
-    return true;
-  }
 }
 
 bool strIsEqual(const char *str1, const char *str2) {
@@ -105,6 +93,18 @@ bool verifyVersionadorFolder(void) {
   bool res = verifyDirectory(".versionador") ? true : false;
   return res;
 }
+
+bool verifySnapshot(const char *snapshot) {
+  char path[] = ".versionador/snapshots/";
+  char folderPath[256];
+
+  strcpy(folderPath, path);
+  strcat(folderPath, snapshot);
+
+  bool res = verifyDirectory(folderPath);
+  return res;
+}
+
 // Creates
 void createFolder(char *folderName, char *newFolderName) {
   char completePath[100];
@@ -142,7 +142,8 @@ void createTxtFile(const char *path, char *fileName, char *text) {
 
   fprintf(file, "%s", text);
   fclose(file);
-  return;
+
+  chmod(newPath, 0777);
 }
 
 void createRepo(const char *folderName) {
@@ -158,37 +159,63 @@ void createRepo(const char *folderName) {
 }
 
 void createSnapshot(const char *text) {
+  // Start the random number generator
+  srand(time(NULL));
+
   char *hash = generateHash(16);
-  char *path = ".versionador/snapshots";
+  char path[] = ".versionador/snapshots/";
 
   // Create snapshot folder with hash name
-  // createFolder(path, hash);
+  createFolder(path, hash); // working
 
   // Create File List
-  // FileList *list = createList();
+  FileList *list = createList();
 
   // Add snapshots_temp files into a File List
-  // addSnapshotTempFilesInList(list);
+  addSnapshotTempFilesInList(list);
 
   // Copy files from the File List into the snapshot folder
-  // addFilesIntoSnapshotFolder(list, hash);
+  addFilesIntoSnapshotFolder(list, hash);
 
-  // Clear File List
-  // freeList(list);
+  char contentPath[256];
+
+  strcpy(contentPath, path);
+  strcat(contentPath, hash);
+
+  createContent(contentPath, text);
 
   // Clear snapshot_temp folder
-  clearFolder(".versionador/snapshots_temp"); // working
+  clearFolder(".versionador/snapshots_temp"); // not working
 
   // Add commit into the log.txt file
   addSnapshotTextInLog(text, hash);
+  cleanList(list);
+  free(hash);
+
   return;
 };
 
+void createContent(const char *path, const char *text) {
+  char newPath[256];
+
+  strcpy(newPath, path);
+  strcat(newPath, "/content");
+
+  FILE *file = fopen(newPath, "w");
+
+  if (!file) {
+    print("Erro ao criar arquivo!", "error");
+  }
+
+  fprintf(file, "%s", text);
+  fclose(file);
+
+  chmod(newPath, 0777);
+}
+
 // Generates
 char generateRandomChar(void) {
-  const char charr[] =
-      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$&*_+?";
-
+  const char charr[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*_+";
   int size = sizeof(charr) - 1;
 
   int i = rand() % size;
@@ -197,7 +224,7 @@ char generateRandomChar(void) {
 }
 
 char* generateHash(int length) {
-  char hash[100];
+  char* hash = malloc((length + 1) * sizeof(char));
   verifyAllocation(hash);
 
   for (int i = 0; i < length; i++) {
@@ -209,7 +236,38 @@ char* generateHash(int length) {
 }
 
 // Gets
-char *getFilesInFolder(const char *path) {}
+char** getFilesInDirectory(const char* directoryPath, int* numFiles) {
+  DIR* dir = opendir(directoryPath);
+
+  if (access(directoryPath, R_OK) != 0) {
+    perror("Erro ao acessar o diretório");
+    print(directoryPath, "error");
+    return NULL;
+  }
+
+  if (dir == NULL) {
+    print("Erro ao abrir o diretório", "error");
+    print(directoryPath, "error");
+    perror("Erro ao abrir o diretorio");
+    return NULL;
+  }
+
+  struct dirent* entry;
+  char** files = NULL;
+  int count = 0;
+
+  while ((entry = readdir(dir)) != NULL) {
+    if (entry->d_type == DT_REG) {
+      files = (char**)realloc(files, (count + 1) * sizeof(char*));
+      files[count] = entry->d_name;
+      count++;
+    }
+  }
+
+  closedir(dir);
+  *numFiles = count;
+  return files;
+}
 
 const char* getTxtContentFile(const char* path) {
   FILE* file = fopen(path, "r");
@@ -252,7 +310,8 @@ const char* getTxtContentFile(const char* path) {
 char** getFoldersInDirectory(const char* directoryPath, int* numFolders) {
   DIR* dir = opendir(directoryPath);
   if (dir == NULL) {
-    printf("Não foi possível abrir o diretório: %s\n", directoryPath);
+    print("Erro ao abrir o diretório", "error");
+    print(directoryPath, "error");
     *numFolders = 0;
     return NULL;
   }
@@ -273,6 +332,55 @@ char** getFoldersInDirectory(const char* directoryPath, int* numFolders) {
   *numFolders = count;
   return folders;
 }
+
+char* getCurrentDirectory() {
+  char* buffer = NULL;
+  size_t size = 0;
+
+  if (getcwd(buffer, size) == NULL) {
+    size_t initialSize = 128;
+    do {
+      size += initialSize;
+      buffer = realloc(buffer, size);
+    } while (getcwd(buffer, size) == NULL);
+  }
+
+  return buffer;
+}
+
+void getShapshot(const char *snapshot) {
+  const char directoryPath[] = "./";
+
+  // Get all files in actual directory
+  int numFiles;
+  char** files = getFilesInDirectory(directoryPath, &numFiles);
+
+  // copy to temp folder
+  copyFilesToTemp(files, numFiles);
+
+  // Delete all files in actual directory
+  clearFolder(directoryPath);
+
+  // Get all files in snapshot folder
+  const char snapshotsPath[] = ".versionador/snapshots/";
+  char snapshotPath[256];
+
+  strcpy(snapshotPath, snapshotsPath);
+  strcat(snapshotPath, snapshot);
+  int snapshotFilesQuantity;
+  const char **snapshotFiles = getFilesInDirectory(snapshotPath, &snapshotFilesQuantity);
+
+  // copy to actual directory
+  copyFilesToWorkspace(files,  snapshotFilesQuantity);
+}
+
+void getTempFiles(void) {
+  clearFolder("./");
+  // Delete all files in actual directory (minus .versionador folder and versionador executable)
+
+  // get all files in .versionador/temp
+  // Copy temp files to actual directory
+};
 
 // Versionador helpers
 bool addFiles(int argc, const char *argv[]) {
@@ -295,28 +403,29 @@ void printArgv(int argc, const char *argv[]) {
 bool clearFolder(const char *folderPath) {
   DIR *dir;
   struct dirent *entry;
+  char path[256];
 
   dir = opendir(folderPath);
   if (dir == NULL) {
-    printf("Erro ao abrir a pasta.\n");
+    perror("Erro ao abrir a pasta");
     return false;
   }
 
-  chdir(folderPath);
-
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_REG) {
-      remove(entry->d_name);
+      snprintf(path, sizeof(path), "%s/%s", folderPath, entry->d_name);
+      if (remove(path) != 0) {
+        perror("Erro ao deletar arquivo");
+        return false;
+      }
     }
   }
 
-  chdir("..");
   closedir(dir);
   return true;
-};
+}
 
 // Show
-
 void showLog(void) {
   char *path = ".versionador/logs/log.txt";
   char *content = getTxtContentFile(path);
@@ -344,20 +453,27 @@ void showLogsContent(void) {
     for (int i = 0; i < foldersQuantity; i++) {
       char title[256];
       strcpy(title, "Conteúdo da snapshot: ");
+
       strcat(title, foldersNames[i]);
       print(title, "green");
 
       char path[] = ".versionador/snapshots/";
-      char folderPath[256];
+      char contentPath[256];
+      strcpy(contentPath, path);
+      strcat(contentPath, "content");
+      getTxtContentFile(contentPath);
 
+      char folderPath[256];
       strcpy(folderPath, path);
       strcat(folderPath, foldersNames[i]);
+
+
 
       printTxtFilesContent(folderPath);
 
       print("--------------------------------", "green");
     }
-    freeFolders(foldersNames, foldersQuantity);
+    freeStringArray(foldersNames, foldersQuantity);
   }
 
   //Mostrar o conteudo de cada pasta individualmente
@@ -382,12 +498,13 @@ void showSnapshotContent(const char* snapshotName) {
 
   print("--------------------------------", "green");
 }
+
 // Frees
-void freeFolders(char** folders, int numFolders) {
-  for (int i = 0; i < numFolders; i++) {
-    free(folders[i]);
+void freeStringArray(char** str, int quantity) {
+  for (int i = 0; i < quantity; i++) {
+    free(str[i]);
   }
-  free(folders);
+  free(str);
 }
 
 // Prints
@@ -419,4 +536,18 @@ void printTxtFilesContent(const char* directoryPath) {
   }
 
   closedir(dir);
+}
+
+void printTxtContent(FILE* file) {
+  if (file == NULL) {
+    print("Não foi possível abrir o arquivo", "error");
+    return;
+  }
+
+
+  char line[256];
+  while (fgets(line, sizeof(line), file) != NULL) {
+    printf("%s", line);
+  }
+  printf("\n");
 }

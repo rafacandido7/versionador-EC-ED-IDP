@@ -1,0 +1,25 @@
+Process:         versionador [58754]
+Path:            /Users/USER/Documents/*/versionador
+Load Address:    0x1021fc000
+Identifier:      versionador
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  leaks [58753]
+
+Date/Time:       2023-06-25 12:00:58.111 -0300
+Launch Time:     2023-06-25 12:00:57.669 -0300
+OS Version:      macOS 13.4 (22F66)
+Report Version:  7
+Analysis Tool:   /Applications/Xcode.app/Contents/Developer/usr/bin/leaks
+Analysis Tool Version:  Xcode 14.3.1 (14E300c)
+
+Physical footprint:         3041K
+Physical footprint (peak):  3057K
+Idle exit:                  untracked
+----
+
+leaks Report Version: 4.0, multi-line stacks
+Process 58754: 225 nodes malloced for 17 KB
+Process 58754: 0 leaks for 0 total leaked bytes.
+

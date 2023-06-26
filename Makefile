@@ -27,5 +27,5 @@ clean:
 
 run:
 	./$(EXE) iniciar
-	# ./$(EXE) adiciona archive1.txt
-	# ./$(EXE) registra commit
+	./$(EXE) adiciona archive1.txt
+	./$(EXE) registra commit

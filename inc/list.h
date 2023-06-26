@@ -13,17 +13,13 @@ typedef struct _fileListNode FileListNode;
 typedef struct _fileList FileList;
 
 FileList* createList(void);
-int push(FileList* list, FILE* file, const char* fileName); // Insere e retorna o tamanho da lista
-int unshift(FileList* list, FILE* file, const char* fileName); // Insere e retorna o elemento na primeira posição
-Archive* pop(FileList* list); // Remove e retorna o último elemento
-Archive* shift(FileList* list); // Remove e retorna o elemento na primeira posição
-FileListNode* getLastElement(FileListNode* node); // Procura pelo último elemento da lista
-int length(FileList* list); // Retorna o tamanho da lista
-bool isEmpty(FileList* list); // Retorna se a lista está vazia
-void freeList(FileList* list); // Desaloca a lista
+void insertNode(FileList* list, const char *fileName, FILE* file);
+void cleanList(FileList* list);
+void printList(FileList* list);
+void addFilesToList(FileList *list, const char** files, int quantity);
+void createFilesInSnapshotFolder(FileList* list, const char* path);
 
-// File Handling
-bool addFilesIteration(FileList* list, const char* path); // Itera sobre os arquivos de um diretório e os insere na lista
-void printFilesNames(FileList* list); // Imprime os nomes dos arquivos da lista
+bool isEmpty(FileList* list); // Retorna se a lista está vazia
+void createTxt(const char *path, FileListNode *node);
 
 #endif

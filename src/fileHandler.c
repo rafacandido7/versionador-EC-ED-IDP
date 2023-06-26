@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 #include <dirent.h>
+#include <unistd.h>
 #include "../inc/helpers.h"
 #include "../inc/fileHandler.h"
 
@@ -51,16 +52,15 @@ void copyFile(const char* fromPath, const char* destinyPath) {
 };
 
 void addTextInTxtFile(const char* path, const char* text) {
-  // print(path, "blue");
+  FILE* file = fopen(path, "a");
+
   if (!verifyFile(path)) {
     print("Erro editar o arquivo: ", "error");
     print(path, "error");
     return;
   }
 
-  FILE* file = fopen(path, "a");
-
-  // Checks the file size
+  // Cheks the file size
   fseek(file, 0, SEEK_END);
   long int fileSize = ftell(file);
 
@@ -85,49 +85,39 @@ void addTextInTxtFile(const char* path, const char* text) {
 };
 
 void addSnapshotTextInLog(const char* snapshotName, const char* hash) {
-  char commitName[100];
-  snprintf(commitName, sizeof(commitName), "%s %s", hash, snapshotName);
+  char commitName[256];
+  strcpy(commitName, snapshotName);
+  strcat(commitName, " - ");
+  strcat(commitName, hash);
 
   addTextInTxtFile(".versionador/logs/log.txt", commitName);
+  return;
   return;
 };
 
 void addSnapshotTempFilesInList(FileList* list) {
-  DIR* dir;
-  struct dirent* entity;
-  char* path = ".versionador/snapshots_temp";
-  dir = opendir(path);
+  const char directoryPath[] = ".versionador/snapshots_temp";
 
-  if (!verifyDirectory(path)) {
-    print("Erro ao abrir o diretório: ", "error");
-    print(path, "error");
-    return;
-  }
+  // Get all files in actual directory
+  int numFiles;
+  char** files = getFilesInDirectory(directoryPath, &numFiles);
 
-  while ((entity = readdir(dir)) != NULL) {
-    char filePath[100];
-    snprintf(filePath, sizeof(filePath), "%s/%s", path, entity->d_name);
-    FILE* file = fopen(filePath, "r");
+  // Copy all files to the list
+  addFilesToList(list, files, numFiles);
 
-    if (!verifyFile(filePath)) {
-      print("Erro ao abrir o arquivo: ", "error");
-      print(filePath, "error");
-      return;
-    }
-
-    push(list, file, entity->d_name);
-  }
-
-  closedir(dir);
-  return;
 };
 
 void addFilesIntoSnapshotFolder(FileList* list, const char* hash) {
-  char snapshotPath[100];
-  snprintf(snapshotPath, sizeof(snapshotPath), ".versionador/snapshots/%s", hash);
+  // Get the files in the list and save then in snapshot folder
+  const char snapshotsPath[] = ".versionador/snapshots/";
+  char snapshotPath[256];
 
-  bool resultAddFiles = addFilesIteration(list, snapshotPath);
-  if (resultAddFiles) {
+  strcpy(snapshotPath, snapshotsPath);
+  strcat(snapshotPath, hash);
+
+  createFilesInSnapshotFolder(list, snapshotPath);
+
+  if (verifyDirectory(snapshotPath)) {
     return;
   } else {
     print("Erro ao adicionar os arquivos na pasta: ", "error");
@@ -135,3 +125,46 @@ void addFilesIntoSnapshotFolder(FileList* list, const char* hash) {
     return;
   };
 }
+
+void copyFilesTo(const char** files, int length, const char *path) {
+  if (files != NULL) {
+    for (int i = 0; i < length; i++) {
+      if (strcmp(files[i], "versionador") == 0) {
+        continue;
+      } else {
+        copyFile(files[i], path);
+      }
+    }
+  }
+};
+
+void copyFilesToTemp(const char** files, int length) {
+  if (files != NULL) {
+    for (int i = 0; i < length; i++) {
+      if (strcmp(files[i], "versionador") == 0) {
+        continue;
+      } else {
+        copyFile(files[i], ".versionador/temp");
+      }
+    }
+  }
+};
+
+void copyFilesToWorkspace(const char** files, int length) {
+  copyFilesTo(files, length, "./");
+}
+
+void moveFilesTo(const char* from, const char* to) {
+  // Get all files in actual directory
+  int numFiles;
+  char** files = getFilesInDirectory(from, &numFiles);
+
+  // copy to temp folder
+  copyFilesTo(files, numFiles, to);
+}
+
+void moveFilesToTemp(const char *from) {
+  const tempDirectoryPath = ".versionador/temp";
+  moveFilesTo(from, tempDirectoryPath);
+}
+

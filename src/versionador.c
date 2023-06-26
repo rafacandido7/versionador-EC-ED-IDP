@@ -89,7 +89,7 @@ void log(int argc, const char *argv[]) {
 void mostrar(const char *argv[]) {
   const char *commit = argv[2];
   if (commit == NULL) {
-    print("É necessário informar o commit!", "error");
+    print("É necessário informar o identificador!", "error");
     return;
   }
 
@@ -97,7 +97,45 @@ void mostrar(const char *argv[]) {
   return;
 };
 
-void mudar(void);
+void mudar(const char* argv[]) {
+  const char *snapshot = argv[2];
+  const char *back = argv[3];
+
+  if (!verifyDirectory(".versionador/snapshots")) {
+    print("Não há snapshots para serem mostrados!", "error");
+    return;
+  }
+
+  if (snapshot == NULL) {
+    print("É necessário informar o identificador!", "error");
+    return;
+  }
+
+  if (snapshot && !verifySnapshot(snapshot)) {
+    print("Snapshot não encontrado!", "error");
+    return;
+  }
+
+  if (snapshot && verifySnapshot(snapshot)) {
+    char changing[] = "Mudando para o snapshot ";
+    char text[256];
+
+    strcpy(text, changing);
+    strcat(text, snapshot);
+
+    print(text, "green");
+    getShapshot(snapshot);
+    return;
+  }
+
+
+  // Pegará os arquivos da pasta temporária e voltará para o diretorio inicial
+  if (back && strIsEqual(back, "--voltar")) {
+    getTempFiles();
+    return;
+  }
+
+};
 
 void options(int argc, const char *argv[]) {
   if (strIsEqual(argv[1], "iniciar")) {
@@ -125,14 +163,10 @@ void options(int argc, const char *argv[]) {
       mostrar(argv);
       return;
     }
-    // if (strIsEqual(argv[1], "mudar")) {
-    //     // verificar se não já está na atual
-    //     if (argv[2] && strIsEqual(argv[2], "--atual")) {
-    //     }
-    // }
-    // if (strIsEqual(argv[1], "--ajuda")) {
-    //     // printar as funções já existentes e disponíveis
-    // }
+    if (strIsEqual(argv[1], "mudar")) {
+      mudar(argv);
+      return;
+    }
     print("Comando não encontrado!", "error");
     return;
   }
