@@ -1,0 +1,36 @@
+# Doxyfile for MyProject
+
+# Project information
+PROJECT_NAME      = "MyVers"
+PROJECT_BRIEF     = "A brief description of MyVers"
+
+# Source code and header directories
+INPUT             = src inc
+RECURSIVE         = YES
+
+# Output directory
+OUTPUT_DIRECTORY  = docs
+
+# Use default Doxygen layout
+HTML_OUTPUT       = .
+HTML_HEADER       =
+HTML_FOOTER       =
+HTML_STYLESHEET   =
+HTML_EXTRA_STYLESHEET =
+
+# Additional configuration options
+EXTRACT_ALL       = YES
+GENERATE_LATEX    = NO
+GENERATE_MAN      = NO
+
+# Exclude directories or files
+EXCLUDE_PATTERNS  = obj
+
+# Include directories for header files
+INCLUDE_PATH      = inc
+
+# Enable cross-referencing of functions, variables, etc.
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+
+# Other configuration options...
