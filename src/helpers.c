@@ -358,7 +358,7 @@ void getShapshot(const char *snapshot) {
   // copy to temp folder
   copyFilesToTemp(files, numFiles);
 
-  // Delete all files in actual directory
+   // Delete all files in actual directory
   clearFolder(directoryPath);
 
   // Get all files in snapshot folder
@@ -371,14 +371,26 @@ void getShapshot(const char *snapshot) {
   const char **snapshotFiles = getFilesInDirectory(snapshotPath, &snapshotFilesQuantity);
 
   // copy to actual directory
-  copyFilesToWorkspace(files,  snapshotFilesQuantity);
+  copyFilesToWorkspace(snapshotFiles, snapshotFilesQuantity, snapshotPath);
 }
 
 void getTempFiles(void) {
-  clearFolder("./");
   // Delete all files in actual directory (minus .versionador folder and versionador executable)
+  clearFolder("./");
 
-  // get all files in .versionador/temp
+  const char *directoryPath = ".versionador/temp";
+
+  // Get all files in the directory
+  int numFiles;
+  char** files = getFilesInDirectory(directoryPath, &numFiles);
+
+  FileList *list = createList();
+
+  addTempFilesIntoList(list);
+
+  addFilesToDir(list);
+
+  cleanList(list);
   // Copy temp files to actual directory
 };
 
@@ -413,6 +425,9 @@ bool clearFolder(const char *folderPath) {
 
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_REG) {
+      if (strIsEqual(entry->d_name, ".versionador") || strIsEqual(entry->d_name, "versionador") || strIsEqual(entry->d_name, ".") || strIsEqual(entry->d_name, "..")) {
+        continue;
+      }
       snprintf(path, sizeof(path), "%s/%s", folderPath, entry->d_name);
       if (remove(path) != 0) {
         perror("Erro ao deletar arquivo");

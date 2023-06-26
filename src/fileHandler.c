@@ -107,6 +107,18 @@ void addSnapshotTempFilesInList(FileList* list) {
 
 };
 
+void addTempFilesIntoList(FileList* list) {
+  const char directoryPath[] = ".versionador/temp";
+
+  // Get all files in actual directory
+  int numFiles;
+  char** files = getFilesInDirectory(directoryPath, &numFiles);
+
+  print(numFiles, "success");
+  // Copy all files to the list
+  addFilesToList(list, files, numFiles);
+};
+
 void addFilesIntoSnapshotFolder(FileList* list, const char* hash) {
   // Get the files in the list and save then in snapshot folder
   const char snapshotsPath[] = ".versionador/snapshots/";
@@ -122,6 +134,21 @@ void addFilesIntoSnapshotFolder(FileList* list, const char* hash) {
   } else {
     print("Erro ao adicionar os arquivos na pasta: ", "error");
     print(snapshotPath, "error");
+    return;
+  };
+}
+
+void addFilesToDir(FileList* list) {
+  // Get the files in the list and save then in snapshot folder
+  const char tempPath[] = "./";
+
+  createFilesInSnapshotFolder(list, tempPath);
+
+  if (verifyDirectory(tempPath)) {
+    return;
+  } else {
+    print("Erro ao adicionar os arquivos na pasta: ", "error");
+    print(tempPath, "error");
     return;
   };
 }
@@ -150,8 +177,23 @@ void copyFilesToTemp(const char** files, int length) {
   }
 };
 
-void copyFilesToWorkspace(const char** files, int length) {
-  copyFilesTo(files, length, "./");
+void copyFilesToWorkspace(const char** files, int length, const char* path) {
+  if (files != NULL) {
+    for (int i = 0; i < length; i++) {
+      if (strcmp(files[i], "versionador") == 0) {
+        continue;
+      } else {
+        char filePath[256];
+
+        strcpy(filePath, path);
+        strcat(filePath, "/");
+        strcat(filePath, files[i]);
+        print(filePath, "success");
+
+        copyFile(filePath, "./");
+      }
+    }
+  }
 }
 
 void moveFilesTo(const char* from, const char* to) {

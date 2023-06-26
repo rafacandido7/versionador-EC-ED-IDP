@@ -99,7 +99,6 @@ void mostrar(const char *argv[]) {
 
 void mudar(const char* argv[]) {
   const char *snapshot = argv[2];
-  const char *back = argv[3];
 
   if (!verifyDirectory(".versionador/snapshots")) {
     print("Não há snapshots para serem mostrados!", "error");
@@ -111,7 +110,14 @@ void mudar(const char* argv[]) {
     return;
   }
 
-  if (snapshot && !verifySnapshot(snapshot)) {
+  // Pegará os arquivos da pasta temporária e voltará para o diretorio inicial
+  if (strIsEqual(argv[2], "--atual")) {
+    print("Voltando para o snapshot atual...", "green");
+    getTempFiles();
+    return;
+  }
+
+  if (snapshot && !verifySnapshot(snapshot) && !strIsEqual(snapshot, "--atual")) {
     print("Snapshot não encontrado!", "error");
     return;
   }
@@ -129,11 +135,6 @@ void mudar(const char* argv[]) {
   }
 
 
-  // Pegará os arquivos da pasta temporária e voltará para o diretorio inicial
-  if (back && strIsEqual(back, "--voltar")) {
-    getTempFiles();
-    return;
-  }
 
 };
 

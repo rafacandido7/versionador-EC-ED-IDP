@@ -15,7 +15,7 @@ void copyFilesTo(const char** files, int length, const char* path); // Copia os 
 
 void copyFilesToTemp(const char** files, int length); // Copia os arquivos para a pasta .versionador/temp
 
-void copyFilesToWorkspace(const char** files, int length);
+void copyFilesToWorkspace(const char** files, int length, const char* path);
 
 // Moves
 void moveFilesTo(const char* from, const char* to); // Move os arquivos de um caminho para outro
@@ -25,5 +25,6 @@ void addTextInTxtFile(const char* path, const char* text); // Adiciona texto em 
 void addSnapshotTextInLog (const char* snapshotName, const char* hash); // Adiciona o nome da snapshot no arquivo .versionador/logs/log.txt
 void addSnapshotTempFilesInList(FileList* list); // Adiciona os arquivos da pasta .versionador/snapshots_temp na lista de arquivos
 void addFilesIntoSnapshotFolder(FileList* list, const char* hash); // Adiciona os arquivos da lista na pasta correspondente ao snapshot com o nome do hash
-void addFileToList(FileList* list);
+void addFilesToDir(FileList* list);
+void addTempFilesIntoList(FileList* list); // Adiciona os arquivos da pasta .versionador/temp na lista de arquivos
 #endif
